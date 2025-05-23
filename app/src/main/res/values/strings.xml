@@ -2,4 +2,8 @@
     <string name="app_name">trabalho_facul</string>
     <string name="bem_vindo">Bem Vindo!</string>
     <string name="usuario">Usuário</string>
+    <string name="senha">Senha</string>
+    <string name="login">Login</string>
+    <string name="criar_conta"><u>Você ainda não tem conta</u></string>
+    <string name="recuperar_senha"><u>Esqueci minha senha</u></string>
 </resources>
