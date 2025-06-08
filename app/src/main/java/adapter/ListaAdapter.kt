@@ -1,0 +1,34 @@
+package adapter
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.trabalho_facul.R
+import modelodados.ListaCompra
+
+class ListaAdapter(private val lista: List<ListaCompra.ListaCompra>) :
+    RecyclerView.Adapter<ListaAdapter.ViewHolder>() {
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val txtId: TextView = itemView.findViewById(R.id.tv_id)
+        val txtNome: TextView = itemView.findViewById(R.id.tv_nome)
+        val txtQtd: TextView = itemView.findViewById(R.id.tv_Qtd)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_lista, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = lista[position]
+        holder.txtId.text = item.id
+        holder.txtNome.text = item.nome
+        holder.txtQtd.text = item.numeroProdutos
+    }
+
+    override fun getItemCount(): Int = lista.size
+}

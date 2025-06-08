@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context="ui.MainActivity">
 
     <TextView
         android:id="@+id/tv_titulo"
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginStart="20dp"
-        android:fontFamily="@font/Poppins_semiBold"
+        android:fontFamily="@font/poppins_semibold"
         android:text="@string/usuario"
         android:textSize="20sp"
         app:layout_constraintTop_toBottomOf="@+id/iv_icone"
