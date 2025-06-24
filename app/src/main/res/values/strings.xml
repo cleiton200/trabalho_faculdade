@@ -6,4 +6,11 @@
     <string name="login">Login</string>
     <string name="criar_conta"><u>Você ainda não tem conta</u></string>
     <string name="recuperar_senha"><u>Esqueci minha senha</u></string>
+    <string name="listas_salvas">Listas Salvas</string>
+    <string name="id">ID</string>
+    <string name="nome_da_lista">Nome da Lista</string>
+    <string name="n_produtos">N° Produtos</string>
+    <string name="criar">Criar</string>
+    <string name="excluir">Excluir</string>
+    <string name="comecar">Começar</string>
 </resources>

@@ -3,13 +3,11 @@ package ui
 import adapter.ListaAdapter
 import android.content.Intent
 import android.os.Bundle
-import android.widget.EditText
-import android.widget.Toast
+import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trabalho_facul.R
 import modelodados.ListaCompra
@@ -43,17 +41,14 @@ class MainActivity : AppCompatActivity() {
                     ListaCompra.ListaCompra("4", "Limpeza", "6"),
                     ListaCompra.ListaCompra("5", "Frutas", "7")
                 )
-
-                adapter = ListaAdapter(listas)
-                recyclerView.layoutManager = LinearLayoutManager(this)
-                recyclerView.adapter = adapter
             }
-
-
-
         }
 
+        val btnLogin = findViewById<Button>(R.id.btn_login)
 
-
+        btnLogin.setOnClickListener {
+            val intent = Intent(this, Tela_inicial::class.java)
+            startActivity(intent)
+        }
     }
 }
