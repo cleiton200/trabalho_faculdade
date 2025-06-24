@@ -54,15 +54,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        btn_login.setOnClickListener {
-            val usuario = findViewById<EditText>(R.id.tv_usuario).text.toString()
-            val senha = findViewById<EditText>(R.id.tv_senha).text.toString()
 
-            if (usuario == "admin" && senha == "1234") {
-                startActivity(Intent(this, TelasListasActivity::class.java))
-            } else {
-                Toast.makeText(this, "Usuário ou senha incorretos", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 }
