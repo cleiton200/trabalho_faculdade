@@ -4,6 +4,7 @@ import adapter.ListaAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -48,6 +49,13 @@ class MainActivity : AppCompatActivity() {
 
         btnLogin.setOnClickListener {
             val intent = Intent(this, Tela_inicial::class.java)
+            startActivity(intent)
+        }
+
+        val tvCriarConta = findViewById<TextView>(R.id.tv_criar_conta)
+
+        tvCriarConta.setOnClickListener {
+            val intent = Intent(this, cadastro2::class.java)
             startActivity(intent)
         }
     }
