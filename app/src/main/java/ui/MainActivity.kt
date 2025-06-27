@@ -4,6 +4,7 @@ import adapter.ListaAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -34,13 +35,6 @@ class MainActivity : AppCompatActivity() {
 
                 recyclerView = findViewById(R.id.recyclerView)
 
-                val listas = listOf(
-                    ListaCompra.ListaCompra("1", "Mercado", "10"),
-                    ListaCompra.ListaCompra("2", "Farmácia", "3"),
-                    ListaCompra.ListaCompra("3", "Padaria", "5"),
-                    ListaCompra.ListaCompra("4", "Limpeza", "6"),
-                    ListaCompra.ListaCompra("5", "Frutas", "7")
-                )
             }
         }
 
@@ -50,5 +44,13 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, Tela_inicial::class.java)
             startActivity(intent)
         }
+
+        val tvNaoTemConta = findViewById<TextView>(R.id.tv_criar_conta)
+
+        tvNaoTemConta.setOnClickListener {
+            val intent = Intent(this, cadastro2::class.java)
+            startActivity(intent)
+        }
+
     }
 }

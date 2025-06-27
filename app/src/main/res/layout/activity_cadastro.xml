@@ -14,7 +14,7 @@
         android:layout_marginTop="16dp"
         android:textSize="58sp"
         android:fontFamily="@font/poppins_bold"
-        android:text="@string/the_check"
+        android:text="@string/titulo_app"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -87,7 +87,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginStart="20dp"
         android:fontFamily="@font/poppins_semibold"
-        android:text="@string/confirmar_a_senha"
+        android:text="Confirmar senha"
         android:textSize="20sp"
         app:layout_constraintTop_toBottomOf="@+id/edt_senha"
         app:layout_constraintStart_toStartOf="parent"
