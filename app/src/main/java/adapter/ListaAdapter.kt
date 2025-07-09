@@ -1,5 +1,6 @@
 package adapter
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trabalho_facul.R
 import modelodados.ListaCompra
+import ui.ItensDaListaActivity
 
 class ListaAdapter(private val lista: List<ListaCompra.ListaCompra>) :
     RecyclerView.Adapter<ListaAdapter.ViewHolder>() {
@@ -28,6 +30,12 @@ class ListaAdapter(private val lista: List<ListaCompra.ListaCompra>) :
         holder.txtId.text = item.id
         holder.txtNome.text = item.nome
         holder.txtQtd.text = item.numeroProdutos
+
+        holder.itemView.setOnClickListener {
+            val intent = Intent(context, ItensDaListaActivity::class.java)
+            intent.putExtra(item.id, lista) // ou lista.id
+            context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int = lista.size
