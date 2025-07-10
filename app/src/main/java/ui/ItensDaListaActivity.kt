@@ -13,5 +13,12 @@ class ItensDaListaActivity : AppCompatActivity() {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_itens_da_lista)
 
+            val nomeLista = intent.getStringExtra("nomeLista")
+
+            // Exibir na tela ou usar para buscar os itens
+            findViewById<TextView>(R.id.tv_titulo_lista).text = "Itens da lista: $nomeLista"
+
+            // Aqui você pode buscar os itens no banco/local
+            // e carregar em uma RecyclerView
         }
 }
