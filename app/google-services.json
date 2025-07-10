@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "777329657861",
+    "project_id": "bdappfacul",
+    "storage_bucket": "bdappfacul.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:777329657861:android:a879a327f00aa078c9346c",
+        "android_client_info": {
+          "package_name": "com.example.trabalho_facul"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY4tn1SBvnJ10V3NG2-KDiQg_o62WJ0qs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
