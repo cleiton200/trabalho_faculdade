@@ -13,6 +13,6 @@
     <string name="criar">Criar</string>
     <string name="excluir">Excluir</string>
     <string name="comecar">Começar</string>
-    <string name="the_check">THE CHECK</string>
+    <string name="titulo_app">THE CHECK</string>
     <string name="confirmar_a_senha">Confirmar a senha</string>
 </resources>

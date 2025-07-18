@@ -16,7 +16,7 @@ class ItensDaListaActivity : AppCompatActivity() {
             val nomeLista = intent.getStringExtra("nomeLista")
 
             // Exibir na tela ou usar para buscar os itens
-            findViewById<TextView>(R.id.tv_titulo_lista).text = "Itens da lista: $nomeLista"
+            findViewById<TextView>(R.id.tv_nome_da_lista).text = "Itens da lista: $nomeLista"
 
             // Aqui você pode buscar os itens no banco/local
             // e carregar em uma RecyclerView

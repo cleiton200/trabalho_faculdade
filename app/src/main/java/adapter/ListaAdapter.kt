@@ -10,6 +10,7 @@ import com.example.trabalho_facul.R
 import modelodados.ListaCompra
 import ui.ItensDaListaActivity
 
+
 class ListaAdapter(private val lista: List<ListaCompra.ListaCompra>) :
     RecyclerView.Adapter<ListaAdapter.ViewHolder>() {
 
@@ -32,9 +33,9 @@ class ListaAdapter(private val lista: List<ListaCompra.ListaCompra>) :
         holder.txtQtd.text = item.numeroProdutos
 
         holder.itemView.setOnClickListener {
-            val intent = Intent(context, ItensDaListaActivity::class.java)
-            intent.putExtra(item.id, lista) // ou lista.id
-            context.startActivity(intent)
+            val intent = Intent(holder.itemView.context, ItensDaListaActivity::class.java)
+            intent.putExtra("listaId", item.id) // ou lista.id
+            holder.itemView.context.startActivity(intent)
         }
     }
 
