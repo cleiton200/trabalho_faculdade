@@ -1,4 +1,6 @@
 package modelodados
 
-class ItemLista {
-}
+data class ItemLista(
+    val nomeProduto: String = "",
+    val quantidade: Int = 1
+)

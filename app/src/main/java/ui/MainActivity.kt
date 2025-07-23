@@ -4,16 +4,20 @@ import adapter.ListaAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trabalho_facul.R
+import com.google.firebase.auth.FirebaseAuth
 import modelodados.ListaCompra
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -24,32 +28,34 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        class TelasListasActivity : AppCompatActivity() {
+        val btnLogin = findViewById<Button>(R.id.btn_login)
 
-            private lateinit var recyclerView: RecyclerView
-            private lateinit var adapter: ListaAdapter
-    
-            override fun onCreate(savedInstanceState: Bundle?) {
-                super.onCreate(savedInstanceState)
-                setContentView(R.layout.tela_listas)
 
-                recyclerView = findViewById(R.id.recyclerView)
-                
+        var auth = FirebaseAuth.getInstance()
+        btnLogin.setOnClickListener {
+
+            val edt_email = findViewById<EditText>(R.id.edt_email)
+            val edt_senha = findViewById<EditText>(R.id.edt_senha)
+
+            val email = edt_email.text.toString().trim()
+            val senha = edt_senha.text.toString().trim()
+
+            if (email.isEmpty() || senha.isEmpty()) {
+                Toast.makeText(this, "Preencha email e senha", Toast.LENGTH_SHORT).show()
+            } else {
+                auth.signInWithEmailAndPassword(email, senha)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val intent = Intent(this, ListaDeListasActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            Toast.makeText(this, "Usuário não encontrado. Cadastre-se.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
             }
         }
 
-        val btnLogin = findViewById<Button>(R.id.btn_login)
 
-        btnLogin.setOnClickListener {
-            val intent = Intent(this, Tela_inicial::class.java)
-            startActivity(intent)
-        }
-
-        val tvCriarConta = findViewById<TextView>(R.id.tv_criar_conta)
-
-        tvCriarConta.setOnClickListener {
-val intent = Intent(this, cadastro2::class.java)
-startActivity(intent)
-}
-}
+    }
 }

@@ -11,33 +11,31 @@ import modelodados.ListaCompra
 import ui.ItensDaListaActivity
 
 
-class ListaAdapter(private val lista: List<ListaCompra.ListaCompra>) :
-    RecyclerView.Adapter<ListaAdapter.ViewHolder>() {
+class ListaAdapter(
+    private val listas: List<ListaCompra>,
+    private val onClick: (ListaCompra) -> Unit
+) : RecyclerView.Adapter<ListaAdapter.ListaViewHolder>() {
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val txtId: TextView = itemView.findViewById(R.id.tv_id)
-        val txtNome: TextView = itemView.findViewById(R.id.tv_nome)
-        val txtQtd: TextView = itemView.findViewById(R.id.tv_Qtd)
+    inner class ListaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val idItem = itemView.findViewById<TextView>(R.id.idItem)
+        val nomeItem = itemView.findViewById<TextView>(R.id.nomeItem)
+        val qtdeItem = itemView.findViewById<TextView>(R.id.qtdeItem)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListaViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_lista, parent, false)
-        return ViewHolder(view)
+            .inflate(R.layout.item_lista_salva, parent, false)
+        return ListaViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = lista[position]
-        holder.txtId.text = item.id
-        holder.txtNome.text = item.nome
-        holder.txtQtd.text = item.numeroProdutos
+    override fun onBindViewHolder(holder: ListaViewHolder, position: Int) {
+        val lista = listas[position]
+        holder.idItem.text = "$position"
+        holder.nomeItem.text = lista.nome
+        holder.qtdeItem.text = lista.numeroProdutos.toString()
 
-        holder.itemView.setOnClickListener {
-            val intent = Intent(holder.itemView.context, ItensDaListaActivity::class.java)
-            intent.putExtra("listaId", item.id) // ou lista.id
-            holder.itemView.context.startActivity(intent)
-        }
+        holder.itemView.setOnClickListener { onClick(lista) }
     }
 
-    override fun getItemCount(): Int = lista.size
+    override fun getItemCount() = listas.size
 }

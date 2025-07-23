@@ -5,7 +5,7 @@ class ListaCompra(val nome: CharSequence, val id: CharSequence, val numeroProdut
     data class ListaCompra(
         val id: String,
         val nome: String,
-        val numeroProdutos: String
+        val numeroProdutos: Int = 0
     )
 
 }

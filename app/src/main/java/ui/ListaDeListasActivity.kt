@@ -1,63 +1,177 @@
 package ui
 
+import adapter.ListaAdapter
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.trabalho_facul.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import modelodados.ListaCompra
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-class cadastro2 : AppCompatActivity() {
+class ListaDeListasActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: ListaAdapter
+    private val listaDeListas = mutableListOf<ListaCompra>()
+    private var listaSelecionada: ListaCompra? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_cadastro)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        setContentView(R.layout.tela_listas)
+        // Inicializa o RecyclerView global
+        recyclerView = findViewById(R.id.recyclerViewListas)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Usa a lista global e o adapter global
+        adapter = ListaAdapter(listaDeListas) { lista ->
+            val intent = Intent(this, ItensDaListaActivity::class.java)
+            intent.putExtra("listaId", listaSelecionada?.id)
+            intent.putExtra("nomeLista", listaSelecionada?.nome)
+            startActivity(intent)
+            listaSelecionada = lista
         }
-        setContentView(R.layout.activity_cadastro) // seu layout de cadastro
 
-        auth = FirebaseAuth.getInstance()
-
-        val emailField = findViewById<EditText>(R.id.edt_email)
-        val senhaField = findViewById<EditText>(R.id.edt_senha)
-        val confirmarSenhaField = findViewById<EditText>(R.id.edt_confirmarsenha)
-        val btnCadastro = findViewById<Button>(R.id.btn_login)
-
-
-        btnCadastro.setOnClickListener {
-            val email = emailField.text.toString().trim()
-            val senha = senhaField.text.toString().trim()
-            val confirmarSenha = confirmarSenhaField.text.toString().trim()
-
-            if (email.isEmpty() || senha.isEmpty() || confirmarSenha.isEmpty()) {
-                Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
+        val btnExcluir = findViewById<Button>(R.id.btn_excluir)
+        btnExcluir.setOnClickListener {
+            if (listaSelecionada == null) {
+                Toast.makeText(this, "Selecione uma lista para excluir", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (senha != confirmarSenha) {
-                Toast.makeText(this, "As senhas não coincidem", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            auth.createUserWithEmailAndPassword(email, senha)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Usuário cadastrado com sucesso", Toast.LENGTH_SHORT).show()
-                    // Aqui você pode redirecionar para a tela principal
+            AlertDialog.Builder(this)
+                .setTitle("Confirmar exclusão")
+                .setMessage("Tem certeza que deseja excluir a lista \"${listaSelecionada?.nome}\"?")
+                .setPositiveButton("Sim") { dialog, _ ->
+                    excluirListaSelecionada()
+                    dialog.dismiss()
                 }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Erro ao cadastrar: ${it.message}", Toast.LENGTH_LONG).show()
+                .setNegativeButton("Não") { dialog, _ ->
+                    dialog.dismiss()
                 }
+                .show()
         }
 
+
+        recyclerView.adapter = adapter
+
+        // Configura botão criar - aqui está o ponto principal
+        val btnCriar = findViewById<Button>(R.id.btn_criar)
+        btnCriar.setOnClickListener {
+            mostrarDialogoCriarLista()
+        }
+
+        // Busca listas do Firestore
+        buscarListasDoFirestore()
+
+    }
+
+    private fun buscarListasDoFirestore() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("usuarios").document(uid)
+            .collection("listas")
+            .get()
+            .addOnSuccessListener { result ->
+                listaDeListas.clear()
+                var contador = 1
+                for (doc in result) {
+                    val id = doc.id
+                    val nome = doc.getString("nome") ?: ""
+                    val qtd = doc.getLong("qtdItens")?.toInt() ?: 0
+                    listaDeListas.add(
+                        ListaCompra(
+                            id = contador.toString(),
+                            nome = nome,
+                            numeroProdutos = qtd.toString()
+                        )
+                    )
+                    contador++
+                }
+                adapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener {
+                // Você pode exibir um Toast de erro aqui se quiser
+            }
+    }
+
+    private fun mostrarDialogoCriarLista() {
+        val editText = EditText(this)
+        editText.hint = "Nome da nova lista"
+
+        AlertDialog.Builder(this)
+            .setTitle("Criar Lista")
+            .setView(editText)
+            .setPositiveButton("Criar") { dialog, _ ->
+                val nomeDigitado = editText.text.toString().trim()
+                if (nomeDigitado.isNotEmpty()) {
+                    salvarListaNoFirebase(nomeDigitado)
+                } else {
+                    Toast.makeText(this, "Digite um nome válido", Toast.LENGTH_SHORT).show()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+
+    private fun salvarListaNoFirebase(nome: String) {
+        val db = FirebaseFirestore.getInstance()
+        val usuarioId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        val novaLista = hashMapOf(
+            "nome" to nome,
+            "dataCriacao" to SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date()),
+            "qtdItens" to 0
+        )
+
+        db.collection("usuarios")
+            .document(usuarioId)
+            .collection("listas")
+            .add(novaLista)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Lista criada com sucesso!", Toast.LENGTH_SHORT).show()
+                buscarListasDoFirestore() // atualiza o RecyclerView
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Erro: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun excluirListaSelecionada() {
+        val usuarioId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+        val nomeLista = listaSelecionada?.nome ?: return
+
+        db.collection("usuarios")
+            .document(usuarioId)
+            .collection("listas")
+            .whereEqualTo("nome", nomeLista) // busca pelo nome
+            .get()
+            .addOnSuccessListener { result ->
+                for (doc in result) {
+                    db.collection("usuarios")
+                        .document(usuarioId)
+                        .collection("listas")
+                        .document(doc.id)
+                        .delete()
+                }
+                Toast.makeText(this, "Lista excluída com sucesso!", Toast.LENGTH_SHORT).show()
+                listaSelecionada = null
+                buscarListasDoFirestore()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Erro ao excluir: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 }

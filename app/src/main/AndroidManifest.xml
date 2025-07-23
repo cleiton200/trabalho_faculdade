@@ -16,6 +16,8 @@
         <activity android:name="ui.Tela_inicial" />
         <activity android:name="ui.cadastro2" />
         <activity android:name="ui.ItensDaListaActivity" />
+        <activity android:name="ui.ListaDeListasActivity" />
+
         <activity
             android:name="ui.MainActivity"
             android:exported="true">
