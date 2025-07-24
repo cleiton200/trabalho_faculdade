@@ -35,8 +35,8 @@ class ListaDeListasActivity : AppCompatActivity() {
         // Usa a lista global e o adapter global
         adapter = ListaAdapter(listaDeListas) { lista ->
             val intent = Intent(this, ItensDaListaActivity::class.java)
-            intent.putExtra("listaId", listaSelecionada?.id)
-            intent.putExtra("nomeLista", listaSelecionada?.nome)
+            intent.putExtra("listaId", lista.id)
+            intent.putExtra("nomeLista", lista.nome)
             startActivity(intent)
             listaSelecionada = lista
         }
@@ -75,6 +75,11 @@ class ListaDeListasActivity : AppCompatActivity() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        buscarListasDoFirestore() // recarrega quando voltar da tela de itens
+    }
+
     private fun buscarListasDoFirestore() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
@@ -84,24 +89,23 @@ class ListaDeListasActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { result ->
                 listaDeListas.clear()
-                var contador = 1
                 for (doc in result) {
-                    val id = doc.id
+                    val id = doc.id // ID real do documento
                     val nome = doc.getString("nome") ?: ""
                     val qtd = doc.getLong("qtdItens")?.toInt() ?: 0
+
                     listaDeListas.add(
                         ListaCompra(
-                            id = contador.toString(),
+                            id = id, // agora usa o ID real
                             nome = nome,
                             numeroProdutos = qtd.toString()
                         )
                     )
-                    contador++
                 }
                 adapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
-                // Você pode exibir um Toast de erro aqui se quiser
+                Toast.makeText(this, "Erro ao carregar listas", Toast.LENGTH_SHORT).show()
             }
     }
 

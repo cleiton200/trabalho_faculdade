@@ -1,5 +1,6 @@
 package adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,11 +9,30 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.trabalho_facul.R
 import modelodados.ItemLista
 
-class ItemAdapter(private val itens: List<ItemLista>) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
+class ItemAdapter(
+    private val itens: List<ItemLista>,
+    private val onItemClick: (position: Int) -> Unit
+) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
-    class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    val selecionados = mutableSetOf<Int>()
+
+    inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val qtd: TextView = view.findViewById(R.id.tv_item_produto)
         val nome: TextView = view.findViewById(R.id.tv_quantidade_produto)
+
+        init {
+            view.setOnClickListener {
+                val position = adapterPosition
+                if (selecionados.contains(position)) {
+                    selecionados.remove(position)
+                    view.setBackgroundColor(Color.TRANSPARENT) // desmarca
+                } else {
+                    selecionados.add(position)
+                    view.setBackgroundColor(Color.parseColor("#33FFFFFF")) // marca com leve branco
+                }
+                onItemClick(position)
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -24,6 +44,11 @@ class ItemAdapter(private val itens: List<ItemLista>) : RecyclerView.Adapter<Ite
         val item = itens[position]
         holder.qtd.text = item.quantidade.toString()
         holder.nome.text = item.nomeProduto
+
+        val isSelecionado = selecionados.contains(position)
+        holder.itemView.setBackgroundColor(
+            if (isSelecionado) Color.parseColor("#33FFFFFF") else Color.TRANSPARENT
+        )
     }
 
     override fun getItemCount(): Int = itens.size
