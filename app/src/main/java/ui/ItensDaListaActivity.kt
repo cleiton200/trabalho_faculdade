@@ -3,6 +3,7 @@ package ui
 import adapter.ItemAdapter
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -46,7 +47,6 @@ class ItensDaListaActivity : AppCompatActivity() {
             adapter.notifyItemChanged(position)
         }
         recyclerView.adapter = adapter
-        recyclerView.adapter = adapter
 
         carregarItensDaLista()
 
@@ -55,12 +55,11 @@ class ItensDaListaActivity : AppCompatActivity() {
         }
 
         findViewById<ImageView>(R.id.iv_icone_editar).setOnClickListener {
-            Toast.makeText(this, "Funcionalidade de edição em construção", Toast.LENGTH_SHORT)
-                .show()
+            editarItemSelecionado()
         }
 
         findViewById<ImageView>(R.id.iv_icone_exluir).setOnClickListener {
-            mostrarConfirmacaoExcluirTodos()
+            excluirItensSelecionados()
         }
     }
 
@@ -77,9 +76,10 @@ class ItensDaListaActivity : AppCompatActivity() {
             .addOnSuccessListener { result ->
                 listaDeItens.clear()
                 for (doc in result) {
+                    val id = doc.id
                     val nome = doc.getString("nomeProduto") ?: ""
                     val qtd = doc.getLong("quantidade")?.toInt() ?: 1
-                    listaDeItens.add(ItemLista(nomeProduto = nome, quantidade = qtd))
+                    listaDeItens.add(ItemLista(id = id, nomeProduto = nome, quantidade = qtd))
                 }
                 adapter.notifyDataSetChanged()
             }
@@ -139,15 +139,110 @@ class ItensDaListaActivity : AppCompatActivity() {
             }
     }
 
-    private fun mostrarConfirmacaoExcluirTodos() {
+    private fun excluirItensSelecionados() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        val listaSelecionados = listaDeItens.filter { it.selecionado }
+
+        if (listaSelecionados.isEmpty()) {
+            Toast.makeText(this, "Selecione pelo menos um item para excluir", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         AlertDialog.Builder(this)
-            .setTitle("Excluir Todos")
-            .setMessage("Tem certeza que deseja excluir todos os itens da lista \"$nomeLista\"?")
-            .setPositiveButton("Sim") { dialog, _ ->
-                excluirItens()
-                dialog.dismiss()
+            .setTitle("Excluir")
+            .setMessage("Deseja excluir os itens selecionados?")
+            .setPositiveButton("Sim") { _, _ ->
+                listaSelecionados.forEach { item ->
+                    db.collection("usuarios")
+                        .document(uid)
+                        .collection("listas")
+                        .document(listaId ?: return@forEach)
+                        .collection("itens")
+                        .document(item.id)
+                        .delete()
+                        .addOnSuccessListener {
+                            Log.d("DELETE", "Item ${item.nomeProduto} deletado")
+                        }
+                        .addOnFailureListener {
+                            Log.e("DELETE", "Erro ao deletar ${item.nomeProduto}: ${it.message}")
+                        }
+                }
+
+                Toast.makeText(this, "Itens excluídos", Toast.LENGTH_SHORT).show()
+                carregarItensDaLista()
+                atualizarQtdItens(listaId!!)
             }
-            .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun editarItemSelecionado() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        val itemSelecionado = listaDeItens.find { it.selecionado }
+
+        if (itemSelecionado == null) {
+            Toast.makeText(this, "Selecione um item para editar", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Cria o layout do dialog
+        val dialogView = layoutInflater.inflate(R.layout.dialog_adicionar_item, null)
+        val editNome = dialogView.findViewById<EditText>(R.id.et_nome_produto)
+        val editQtd = dialogView.findViewById<EditText>(R.id.et_quantidade)
+        val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_unidade)
+
+        // Preenche os dados do item atual
+        val regex = Regex("""(.*)\s+\((.*)\)""")
+        val match = regex.find(itemSelecionado.nomeProduto)
+        val nomeBase = match?.groups?.get(1)?.value ?: itemSelecionado.nomeProduto
+        val unidade = match?.groups?.get(2)?.value ?: "unidade"
+
+        editNome.setText(nomeBase)
+        editQtd.setText(itemSelecionado.quantidade.toString())
+
+        when (unidade) {
+            "unidade" -> radioGroup.check(R.id.rb_unidade)
+            "kg" -> radioGroup.check(R.id.rb_kg)
+            "g" -> radioGroup.check(R.id.rb_g)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Editar Item")
+            .setView(dialogView)
+            .setPositiveButton("Salvar") { dialog, _ ->
+                val novoNome = editNome.text.toString().trim()
+                val novaQtd = editQtd.text.toString().trim().toIntOrNull() ?: 1
+                val novaUnidade = when (radioGroup.checkedRadioButtonId) {
+                    R.id.rb_unidade -> "unidade"
+                    R.id.rb_kg -> "kg"
+                    R.id.rb_g -> "g"
+                    else -> "unidade"
+                }
+
+                val novoNomeCompleto = "$novoNome ($novaUnidade)"
+
+                db.collection("usuarios")
+                    .document(uid)
+                    .collection("listas")
+                    .document(listaId!!)
+                    .collection("itens")
+                    .document(itemSelecionado.id)
+                    .update(
+                        mapOf(
+                            "nomeProduto" to novoNomeCompleto,
+                            "quantidade" to novaQtd
+                        )
+                    )
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Item editado", Toast.LENGTH_SHORT).show()
+                        carregarItensDaLista()
+                    }
+            }
+            .setNegativeButton("Cancelar", null)
             .show()
     }
 
@@ -167,43 +262,6 @@ class ItensDaListaActivity : AppCompatActivity() {
                 .collection("listas").document(listaId)
                 .update("qtdItens", qtd)
         }
-    }
-
-    private fun excluirItens() {
-        findViewById<ImageView>(R.id.iv_icone_exluir).setOnClickListener {
-            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
-            val db = FirebaseFirestore.getInstance()
-
-            val listaSelecionados = adapter.selecionados.map { listaDeItens[it] }
-
-            listaSelecionados.forEach { item ->
-                db.collection("usuarios")
-                    .document(uid)
-                    .collection("listas")
-                    .document(listaId ?: return@forEach)
-                    .collection("itens")
-                    .whereEqualTo("nomeProduto", item.nomeProduto)
-                    .whereEqualTo("quantidade", item.quantidade)
-                    .get()
-                    .addOnSuccessListener { result ->
-                        for (doc in result) {
-                            db.collection("usuarios")
-                                .document(uid)
-                                .collection("listas")
-                                .document(listaId!!)
-                                .collection("itens")
-                                .document(doc.id)
-                                .delete()
-                        }
-                        Toast.makeText(this, "Itens selecionados excluídos", Toast.LENGTH_SHORT)
-                            .show()
-                        carregarItensDaLista()
-                        atualizarQtdItens(listaId!!)
-                    }
-            }
-
-        }
-
     }
 }
 
