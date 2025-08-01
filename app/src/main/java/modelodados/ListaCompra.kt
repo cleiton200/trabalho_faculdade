@@ -1,11 +1,6 @@
 package modelodados
-
-class ListaCompra(val nome: CharSequence, val id: CharSequence, val numeroProdutos: CharSequence) {
-
-    data class ListaCompra(
+data class ListaCompra(
         val id: String = "",
         val nome: String = "",
         val numeroProdutos: String = ""
     )
-
-}

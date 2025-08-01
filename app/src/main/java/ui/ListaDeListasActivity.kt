@@ -75,7 +75,7 @@ class ListaDeListasActivity : AppCompatActivity() {
 
     }
 
-    override fun onResume() {
+     override fun onResume() {
         super.onResume()
         buscarListasDoFirestore() // recarrega quando voltar da tela de itens
     }
