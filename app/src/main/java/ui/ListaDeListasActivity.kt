@@ -69,9 +69,20 @@ class ListaDeListasActivity : AppCompatActivity() {
         btnCriar.setOnClickListener {
             mostrarDialogoCriarLista()
         }
-
         // Busca listas do Firestore
         buscarListasDoFirestore()
+
+        val btnComecar = findViewById<Button>(R.id.btn_Começar)
+        btnComecar.setOnClickListener {
+            if (listaSelecionada != null) {
+                val intent = Intent(this, AcompanhamentoCompraActivity::class.java)
+                intent.putExtra("listaId", listaSelecionada!!.id)
+                intent.putExtra("nomeLista", listaSelecionada!!.nome)
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Selecione uma lista antes de começar", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     }
 

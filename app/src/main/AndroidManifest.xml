@@ -17,6 +17,7 @@
         <activity android:name="ui.cadastro2" />
         <activity android:name="ui.ItensDaListaActivity" />
         <activity android:name="ui.ListaDeListasActivity" />
+        <activity android:name="ui.AcompanhamentoCompraActivity" />
 
         <activity
             android:name="ui.MainActivity"
