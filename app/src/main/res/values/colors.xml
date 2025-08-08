@@ -4,4 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="links">#0D47A1 </color>
     <color name="gastando">#509D5F</color>
+    <color name="selecionado">#DD52D3C2</color>
 </resources>

@@ -28,7 +28,7 @@ class ItemAdapter(
                     view.setBackgroundColor(Color.TRANSPARENT) // desmarca
                 } else {
                     selecionados.add(position)
-                    view.setBackgroundColor(Color.parseColor("#33FFFFFF")) // marca com leve branco
+                    view.setBackgroundColor(Color.parseColor("#DD52D3C2")) // marca com leve branco
                 }
                 onItemClick(position)
             }
@@ -47,7 +47,7 @@ class ItemAdapter(
 
         val isSelecionado = selecionados.contains(position)
         holder.itemView.setBackgroundColor(
-            if (isSelecionado) Color.parseColor("#33FFFFFF") else Color.TRANSPARENT
+            if (isSelecionado) Color.parseColor("#DD52D3C2") else Color.TRANSPARENT
         )
     }
 

@@ -79,8 +79,16 @@ class AcompanhamentoCompraActivity : AppCompatActivity() {
             }
     }
 
+    private fun isPeso(nome: String) =
+        nome.contains("(kg)", ignoreCase = true) || nome.contains("(g)", ignoreCase = true)
+
     private fun atualizarTotal() {
-        totalGasto = itensEmCompra.filter { it.comprado }.sumOf { it.valorUnitario * it.quantidade }
+        totalGasto = itensEmCompra
+            .filter { it.comprado }
+            .sumOf { item ->
+                if (isPeso(item.nomeProduto)) item.valorUnitario         // já é o valor final
+                else item.valorUnitario * item.quantidade                // unitário x qtd
+            }
         textTotal.text = "Total: R$ %.2f".format(totalGasto)
     }
 

@@ -24,6 +24,8 @@ class AcompanhamentoAdapter(
         val check = view.findViewById<CheckBox>(R.id.checkComprado)
 
         init {
+            valor.keyListener = android.text.method.DigitsKeyListener.getInstance("0123456789,.")
+
             check.setOnCheckedChangeListener { _, isChecked ->
                 val pos = adapterPosition
                 if (pos != RecyclerView.NO_POSITION) {
@@ -56,16 +58,26 @@ class AcompanhamentoAdapter(
         return ViewHolder(view)
     }
 
+    private fun isPeso(nome: String): Boolean =
+        nome.contains("(kg)", ignoreCase = true) || nome.contains("(g)", ignoreCase = true)
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = itens2[position]
         holder.nome.text = item.nomeProduto
-        holder.quantidade.text = "x${item.quantidade}"
+
+        if (isPeso(item.nomeProduto)) {
+            holder.quantidade.visibility = View.GONE         // não mostra "x600"
+            holder.valor.hint = "Valor total"                // usuário digita o valor final
+        } else {
+            holder.quantidade.visibility = View.VISIBLE
+            holder.quantidade.text = "x${item.quantidade}"   // preço é unitário
+            holder.valor.hint = "Preço unitário"
+        }
 
         val valorTexto = if (item.valorUnitario > 0) "%.2f".format(item.valorUnitario) else ""
         if (holder.valor.text.toString() != valorTexto) {
             holder.valor.setText(valorTexto)
         }
-
         holder.check.isChecked = item.comprado
     }
 
