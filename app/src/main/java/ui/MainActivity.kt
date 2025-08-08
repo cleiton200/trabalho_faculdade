@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -50,12 +51,63 @@ class MainActivity : AppCompatActivity() {
                             startActivity(intent)
                             finish()
                         } else {
-                            Toast.makeText(this, "Usuário não encontrado. Cadastre-se.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this,
+                                "Usuário não encontrado. Cadastre-se.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
             }
         }
-
-
+        //Criar a conta
+        val tvCriarConta = findViewById<TextView>(R.id.tv_criar_conta)
+        tvCriarConta.setOnClickListener {
+            val intent = Intent(this, cadastro2::class.java)
+            startActivity(intent)
+        }
+        val tvRecuperar = findViewById<TextView>(R.id.tv_recuperar_senha)
+        tvRecuperar.setOnClickListener { mostrarDialogReset() }
     }
+
+    private fun mostrarDialogReset() {
+        val input = EditText(this).apply {
+            hint = "Seu e-mail"
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            setPadding(24, 24, 24, 24)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Recuperar senha")
+            .setMessage("Digite o e-mail cadastrado para receber o link.")
+            .setView(input)
+            .setPositiveButton("Enviar") { d, _ ->
+                val email = input.text.toString().trim()
+                enviarEmailReset(email)
+                d.dismiss()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun enviarEmailReset(email: String) {
+        if (email.isEmpty()) {
+            Toast.makeText(this, "Informe seu e-mail.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val auth = FirebaseAuth.getInstance()
+        auth.setLanguageCode("pt")
+
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                val msg = if (task.isSuccessful)
+                    "Se o e-mail existir, enviaremos um link de redefinição."
+                else
+                    task.exception?.localizedMessage ?: "Erro ao enviar. Tente novamente."
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+            }
+    }
+
+
+
 }
