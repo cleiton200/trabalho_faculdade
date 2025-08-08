@@ -58,7 +58,7 @@ class ItensDaListaActivity : AppCompatActivity() {
             editarItemSelecionado()
         }
 
-        findViewById<ImageView>(R.id.iv_icone_exluir).setOnClickListener {
+        findViewById<ImageView>(R.id.iv_icone_excluir).setOnClickListener {
             excluirItensSelecionados()
         }
     }
